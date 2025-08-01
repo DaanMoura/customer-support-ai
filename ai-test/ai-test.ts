@@ -1,4 +1,33 @@
 import { GoogleGenAI } from "@google/genai";
+import { Pool } from "pg";
+import type { Customer, Purchase } from "./types";
+
+const pool = new Pool({
+  host: 'localhost',
+  database: 'ecommerce',
+  user: 'docker',
+  password: 'docker',
+})
+
+const customer = (await pool.query<Customer>('SELECT * FROM customers ORDER BY RANDOM() LIMIT 1')).rows[0]
+
+if (!customer) {
+  throw new Error('Nenhum cliente encontrado')
+}
+
+const purchases = (await pool.query<Purchase>(`SELECT * FROM purchases WHERE customer_id = '${customer.id}'`)).rows
+
+const getCustomerAge = (c: Customer) => {
+  const today = new Date()
+  const diffWithBirthdate = today.getTime() - c.birthdate.getTime()
+  return (new Date(diffWithBirthdate)).getFullYear() - 1970
+}
+
+const getDaysSincePurchase = (purchase: Purchase) => {
+  const today = new Date()
+  const diffInMilis = today.getTime() - purchase.date.getTime()
+  return Math.floor(diffInMilis / (1000 * 60 * 60 * 24))
+}
 
 const genai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
@@ -33,28 +62,27 @@ Você não pode realizar nenhuma ação a não ser responder perguntas sobre os 
 de alguma ação por parte da empresa (como contestar compras), direcione-o ao suporte.
 
 <CLIENTE>
-Nome: Daniel
-Email: daniel@ftr.com
-Idade: 19 anos
-Estado: São Paulo
+Nome: ${customer.first_name} ${customer.last_name}
+Email: ${customer.email}
+Idade: ${getCustomerAge(customer)} anos
+Estado: ${customer.state}
 </CLIENTE>
 
 
 <COMPRAS>
-1.
-Nome: Skate maneiro
-Preço: R$ 200,00
-Dias desde a compra: 5
-Status: cancelado
-
-2.
-Nome: Geladeira
-Preço: R$ 1000,00
-Dias desde a compra: 2
-Status: entregue
+${purchases.map((purchase, index) => `
+${index + 1}.
+Nome: ${purchase.product}
+Preço: R$ ${purchase.price}
+Dias desde a compra: ${getDaysSincePurchase(purchase)}
+Status: ${purchase.status}`).join('\n\n')}
 
 </COMPRAS>
 `
+
+console.log(systemInstruction)
+
+console.log('---- RESPONSE ----')
 
 const response = await genai.models.generateContent({
   model: MODEL,
