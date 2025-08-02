@@ -1,0 +1,34 @@
+.login-box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	height: 100vh;
+
+	/* width: 100%; */
+	/* max-width: 400px; */
+}
+
+.login-box input {
+	width: 360px;
+	border-radius: 8px;
+	border: none;
+	padding: 10px 20px;
+	box-sizing: border-box;
+}
+
+.login-box button {
+	width: 360px;
+	background-color: #303030;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+.login-box button:hover {
+	background-color: #353535;
+}

@@ -33,4 +33,15 @@ export type CustomerInfo = {
   customer: Customer;
   purchases: Purchase[];
 };
+
+export type ChatRole = 'user' | 'model';
+
+export type ChatResponse = {
+    role: ChatRole;
+    parts: { text: string }[];
+}
+
+export type ChatHistory = Record<string, ChatResponse[]>
+
+    
   

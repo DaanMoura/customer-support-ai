@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import type { Customer, CustomerInfo, Purchase } from "./types";
+import type { ChatResponse, Customer, CustomerInfo, Purchase } from "./types";
 
 const genai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
@@ -70,7 +70,7 @@ Status: ${purchase.status}`).join('\n\n')}
 
 
 
-export const messageAI = async (customerInfo: CustomerInfo, message: string) => {
+export const messageAI = async (customerInfo: CustomerInfo, message: ChatResponse[]) => {
   const systemInstruction = getSystemInstruction(customerInfo)
 
   console.log({ systemInstruction })
